@@ -30,8 +30,6 @@ export interface IModeHandler {
   rerunRecordedState(recordedState: RecordedState): Promise<void>;
 }
 
-const logger = Logger.get('Parser');
-
 export async function executeTransformations(
   modeHandler: IModeHandler,
   transformations: Transformation[]
@@ -69,7 +67,7 @@ export async function executeTransformations(
       case 'moveCursor':
         break;
       default:
-        logger.warn(`Unhandled text transformation type: ${command.type}.`);
+        Logger.warn(`Unhandled text transformation type: ${command.type}.`);
         break;
     }
 
@@ -90,7 +88,7 @@ export async function executeTransformations(
     const overlapping = overlappingTransformations(textTransformations);
     if (overlapping !== undefined) {
       const msg = `Transformations overlapping: ${JSON.stringify(overlapping)}`;
-      logger.warn(msg);
+      Logger.warn(msg);
       if (Globals.isTesting) {
         throw new Error(msg);
       }
@@ -118,13 +116,6 @@ export async function executeTransformations(
         // Messages like "TextEditor(vs.editor.ICodeEditor:1,$model8) has been disposed" can be ignored.
         // They occur when the user switches to a new tab while an action is running.
         if (e.name !== 'DISPOSED') {
-          e.context = {
-            currentMode: Mode[vimState.currentMode],
-            cursors: vimState.cursors.map((cursor) => cursor.toString()),
-            actionsRunPressedKeys: vimState.recordedState.actionsRunPressedKeys,
-            actionsRun: vimState.recordedState.actionsRun.map((action) => action.constructor.name),
-            textTransformations,
-          };
           throw e;
         }
       }
@@ -145,7 +136,7 @@ export async function executeTransformations(
       // await vscode.commands.executeCommand('default:type', { text });
       await TextEditor.insert(vimState.editor, text);
     } else {
-      logger.warn(`Unhandled multicursor transformations. Not all transformations are the same!`);
+      Logger.warn(`Unhandled multicursor transformations. Not all transformations are the same!`);
     }
   }
 
@@ -244,7 +235,7 @@ export async function executeTransformations(
         break;
 
       default:
-        logger.warn(`Unhandled text transformation type: ${transformation.type}.`);
+        Logger.warn(`Unhandled text transformation type: ${transformation.type}.`);
         break;
     }
   }
